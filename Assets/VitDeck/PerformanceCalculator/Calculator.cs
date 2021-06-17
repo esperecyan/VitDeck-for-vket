@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 using VitDeck.Utilities;
 using VitDeck.Language;
+using System.Collections;
 
 namespace VitDeck.PerformanceCalculator
 {
@@ -24,7 +25,7 @@ namespace VitDeck.PerformanceCalculator
 
         private static readonly TimeSpan frameTimeSpan = TimeSpan.FromSeconds(1f / 60);
 
-        public static async Task<(int setPassCalls, int batches)?> EditorPlay(string rootObjectName, SpaceSize spaceSize)
+        public static IEnumerator EditorPlay(string rootObjectName, SpaceSize spaceSize)
         {
             EditorApplication.isPlaying = true;
 
@@ -39,7 +40,9 @@ namespace VitDeck.PerformanceCalculator
             double time = EditorApplication.timeSinceStartup;
             while (EditorApplication.timeSinceStartup - time < 1.84f)
             {
-                await Task.Delay(frameTimeSpan);
+                Debug.Log(3);
+                yield return null;
+                Debug.Log(4);
             }
 
             if (!EditorApplication.isPlaying)
@@ -47,7 +50,7 @@ namespace VitDeck.PerformanceCalculator
                 EditorUtility.DisplayDialog("Error", LocalizedMessage.Get("PerformanceCalculator.NotPlayMode"), "OK");
                 EditorApplication.isPlaying = false;
                 EditorUtility.ClearProgressBar();
-                return null;
+                yield break;
             }
 
             Scene scene = SceneManager.GetActiveScene();
@@ -99,13 +102,13 @@ namespace VitDeck.PerformanceCalculator
                 {
                     EditorApplication.isPlaying = false;
                     EditorUtility.ClearProgressBar();
-                    return null;
+                    yield break;
                 }
                 checkParentObj.transform.rotation = Quaternion.Euler(0, rotation, 0);
                 setPassCallsList.Add(UnityStats.setPassCalls);
                 batchesList.Add(UnityStats.batches);
                 rotation++;
-                await Task.Delay(frameTimeSpan);
+                yield return null;
             }
 
             Object.DestroyImmediate(cameraObj);
@@ -118,7 +121,7 @@ namespace VitDeck.PerformanceCalculator
 
             EditorApplication.isPlaying = false;
 
-            return (setPassCalls, batches);
+            yield return (setPassCalls, batches);
         }
     }
 }

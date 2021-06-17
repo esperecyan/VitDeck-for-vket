@@ -5,6 +5,7 @@ using VitDeck.Utilities;
 using VitDeck.Language;
 using VitDeck.Main;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace VitDeck.PerformanceCalculator
 {
@@ -65,28 +66,32 @@ namespace VitDeck.PerformanceCalculator
                 return;
             }
 
-            this.Calculate();
+            UnityEditorUtility.StartCoroutine(this.Calculate());
         }
 
-        private async void Calculate()
+        private IEnumerator Calculate()
         {
             var bakeCheck = GUIUtilities.BakeCheckAndRun();
             while (bakeCheck.MoveNext())
             {
-                await Task.Delay(TimeSpan.FromSeconds(0.05f));
+                yield return null;
             }
 
             if (!(bool)bakeCheck.Current)
             {
-                return;
+                yield break;
             }
 
-            var setPassCallsAndBatches = await Calculator.EditorPlay(AssetUtility.GetId(this.baseFolder), this.spaceSize);
-            if (setPassCallsAndBatches == null)
+            var editorPlay = Calculator.EditorPlay(AssetUtility.GetId(this.baseFolder), this.spaceSize);
+            while (editorPlay.MoveNext())
             {
-                return;
+                yield return null;
             }
-            var (setPassCalls, batches) = ((int, int))setPassCallsAndBatches;
+            if (editorPlay.Current == null)
+            {
+                yield break;
+            }
+            var (setPassCalls, batches) = ((int, int))editorPlay.Current;
 
             EditorUtility.DisplayDialog(
                 "VitDeck",

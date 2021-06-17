@@ -3,9 +3,7 @@
     "references": [
         "VitDeck.Language",
         "VitDeck.Utilities",
-        "VitDeck.Main",
-        "Unity.EditorCoroutines.Editor",
-        "UniTask"
+        "VitDeck.Main"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
